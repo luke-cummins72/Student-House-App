@@ -1,0 +1,30 @@
+<h2>All Bills</h2>
+
+<table border="1">
+  <tr>
+    <th>Type</th>
+    <th>Total (€)</th>
+    <th>Start</th>
+    <th>End</th>
+    <th>Status</th>
+  </tr>
+
+  <tr *ngFor="let bill of bills">
+    <td>{{ bill.billType }}</td>
+    <td>{{ bill.totalCents / 100 }}</td>
+    <td>{{ bill.periodStart }}</td>
+    <td>{{ bill.periodEnd }}</td>
+    <td>{{ bill.status }}</td>
+  </tr>
+</table>
+
+<hr>
+
+<h3>Add New Bill</h3>
+
+<input placeholder="Type" [(ngModel)]="newBill.billType">
+<input type="number" placeholder="Total (cents)" [(ngModel)]="newBill.totalCents">
+<input type="date" [(ngModel)]="newBill.periodStart">
+<input type="date" [(ngModel)]="newBill.periodEnd">
+
+<button (click)="addBill()">Add Bill</button>

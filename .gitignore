@@ -1,0 +1,14 @@
+# Node
+node_modules/
+npm-debug.log
+
+# Angular
+.angular/
+dist/
+
+# Environment files
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
