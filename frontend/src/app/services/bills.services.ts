@@ -22,4 +22,20 @@ export class BillService {
   addBill(bill: Bill): Observable<Bill> {
     return this.http.post<Bill>(this.apiUrl, bill);
   }
+
+  getAllocations(billId: string) {
+    return this.http.get<any[]>(`http://localhost:3000/bills/${billId}/allocations`);
+  }
+
+  pay(allocationId: string, amount: number) {
+    return this.http.post(
+      `http://localhost:3000/bills/allocations/${allocationId}/pay`,
+      { amountCents: amount }
+    );
+  }
+
+  getMembers() {
+    return this.http.get<any[]>('http://localhost:3000/bills/members');
+  }
+
 }

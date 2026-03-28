@@ -1,30 +1,148 @@
-<h2>All Bills</h2>
+<div class="container">
 
-<table border="1">
-  <tr>
-    <th>Type</th>
-    <th>Total (€)</th>
-    <th>Start</th>
-    <th>End</th>
-    <th>Status</th>
-  </tr>
+  <h2>All Bills</h2>
 
-  <tr *ngFor="let bill of bills">
-    <td>{{ bill.billType }}</td>
-    <td>{{ bill.totalCents / 100 }}</td>
-    <td>{{ bill.periodStart }}</td>
-    <td>{{ bill.periodEnd }}</td>
-    <td>{{ bill.status }}</td>
-  </tr>
-</table>
+  <table class="bills-table">
+    <thead>
+    <tr>
+      <th>Type</th>
+      <th>Total (€)</th>
+      <th>Start</th>
+      <th>End</th>
+      <th>Status</th>
+    </tr>
+    </thead>
 
-<hr>
+    <tbody>
+    <tr *ngFor="let bill of bills"
+        (click)="bill._id && loadAllocations(bill._id)"
+        [class.active]="selectedBill?._id === bill._id"
+        [class.closed-row]="bill.status === 'closed'"
+        class="clickable">
 
-<h3>Add New Bill</h3>
+      <td>{{ bill.billType }}</td>
+      <td>{{ bill.totalCents / 100 | currency:'EUR' }}</td>
+      <td>{{ bill.periodStart | date }}</td>
+      <td>{{ bill.periodEnd | date }}</td>
+      <td>
+         <span class="status-badge"
+               [ngClass]="{
+        'bill-open': bill.status === 'open',
+        'bill-closed': bill.status === 'closed'
+      }">
+  {{ bill.status === 'closed' ? 'Closed' : 'Open' }}
+</span>
+      </td>
+    </tr>
+    </tbody>
+  </table>
 
-<input placeholder="Type" [(ngModel)]="newBill.billType">
-<input type="number" placeholder="Total (cents)" [(ngModel)]="newBill.totalCents">
-<input type="date" [(ngModel)]="newBill.periodStart">
-<input type="date" [(ngModel)]="newBill.periodEnd">
+  <div *ngIf="allocations.length > 0" class="breakdown-card">
 
-<button (click)="addBill()">Add Bill</button>
+    <div class="breakdown-header">
+      <h3>{{ selectedBill.billType }} Bill</h3>
+      <button class="close-btn" (click)="closeBreakdown()">✖</button>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary">
+      <p><strong>Total:</strong> {{ getTotalOwed() | currency:'EUR' }}</p>
+      <p><strong>Collected:</strong> {{ getTotalPaid() | currency:'EUR' }}</p>
+      <p><strong>Outstanding:</strong> {{ getOutstanding() | currency:'EUR' }}</p>
+    </div>
+
+
+    <table class="bills-table">
+      <thead>
+      <tr>
+        <th>Member</th>
+        <th>Owed</th>
+        <th>Paid</th>
+        <th>Payment</th>
+        <th>Status</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let a of allocations">
+
+        <td class="member">
+          {{ getMemberName(a.memberId) }}
+        </td>
+
+        <td>{{ a.owedCents / 100 | currency:'EUR' }}</td>
+
+        <td>{{ a.paidCents / 100 | currency:'EUR' }}</td>
+
+        <!-- PAYMENT -->
+        <td class="payment-cell">
+          <input type="number"
+                 [(ngModel)]="a.paymentInput"
+                 [disabled]="a.status === 'paid'"
+                 placeholder="€"
+                 min="0.01"
+                 step="0.01" />
+
+          <button
+            (click)="pay(a)"
+            [disabled]="a.status === 'paid' || !a.paymentInput">
+            Pay
+          </button>
+        </td>
+
+        <!-- STATUS -->
+        <td>
+    <span class="status-badge"
+          [ngClass]="{
+            'paid': a.status === 'paid',
+            'part': a.status === 'part-paid',
+            'unpaid': a.status === 'unpaid'
+          }">
+      {{
+        a.status === 'unpaid' ? 'Unpaid' :
+          a.status === 'part-paid' ? 'Part Paid' :
+            'Paid'
+      }}
+    </span>
+        </td>
+
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <!-- 🔹 Form -->
+  <div class="form-section">
+    <h3>Add New Bill</h3>
+
+    <form (ngSubmit)="addBill()" class="bill-form">
+
+      <input type="text"
+             placeholder="Type"
+             [(ngModel)]="newBill.billType"
+             name="type"
+             required>
+
+      <input type="number"
+             placeholder="Amount (€)"
+             [(ngModel)]="newBill.totalCents"
+             name="amount"
+             required>
+
+      <input type="date"
+             [(ngModel)]="newBill.periodStart"
+             name="start"
+             required>
+
+      <input type="date"
+             [(ngModel)]="newBill.periodEnd"
+             name="end"
+             required>
+
+      <button type="submit">Add Bill</button>
+
+    </form>
+  </div>
+
+</div>
